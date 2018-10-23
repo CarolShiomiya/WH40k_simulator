@@ -43,16 +43,16 @@ AProll(damageroll(hitroll(6,4),5,5),2,3)
 #total sim　A,WS,Attack,Toughness,Saving,APを入力し、
 #５万回のシミュレーションを行いダメージ回数ごとの確率を表にする
 sim<-function(A,WS,Attack,Toughness,Saving,AP){
+  title<-paste("A=",A,", WS=",WS,", Attack=",Attack,", Toughness=",Toughness,", Saving=",Saving,", AP=",AP)
   APs<-c()
   for (i in 1:50000){
     APs[i]<-AProll(damageroll(hitroll(A,WS),Attack,Toughness),Saving,AP)
   }
-  plot(table(APs)/500)
+  plot(table(APs)/500,main =title,xlab="Damage(times)",ylab="Probability(%)")
   return(table(APs)/500)
   }
 
-sim(A=5,WS=4,Attack=5,Toughness=4,Saving=3,AP=1)
-
+sim(A=12,WS=4,Attack=5,Toughness=4,Saving=4,AP=1)
 
 #partial sims
 hits<-c()
