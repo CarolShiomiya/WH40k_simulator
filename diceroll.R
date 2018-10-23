@@ -72,3 +72,23 @@ for (i in 1:10000){
   APs[i]<-AProll(damageroll(hitroll(6,4),5,5),2,3)
 }
 plot(table(APs)/100)
+
+
+#ダメージ回数を先に決めてから、それに達するまでにかかる回数のシミュレーション
+howmany.to.kill<-function(A,WS,Attack,Toughness,Saving,AP,Wound){
+  accumuated_damage<-0
+  i <- 0
+  REPEAT {
+    i<-i+1
+    accumuated_damage<-accumuated_damage+AProll(damageroll(hitroll(A,WS),Attack,Toughness),Saving,AP)
+    } UNTIL (accumuated_damage >= wound) 
+  return(i)
+  }
+sim2(A,WS,Attack,Toughness,Saving,AP,Wound){
+  times<-c()
+  for (j in 1:50000){
+    times[j]<-howmany.to.kill(A,WS,Attack,Toughness,Saving,AP,Wound)
+  }
+  plot(table(times)/500,main =title,xlab="Attacks(times)",ylab="Probability(%)")
+  return(table(APs)/500)
+}
