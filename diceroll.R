@@ -76,19 +76,25 @@ plot(table(APs)/100)
 
 #ダメージ回数を先に決めてから、それに達するまでにかかる回数のシミュレーション
 howmany.to.kill<-function(A,WS,Attack,Toughness,Saving,AP,Wound){
-  accumuated_damage<-0
+  chikuseki_damage<-0
   i <- 0
-  REPEAT {
+  repeat {
     i<-i+1
-    accumuated_damage<-accumuated_damage+AProll(damageroll(hitroll(A,WS),Attack,Toughness),Saving,AP)
-    } UNTIL (accumuated_damage >= wound) 
-  return(i)
+    chikuseki_damage<-chikuseki_damage+AProll(damageroll(hitroll(A,WS),Attack,Toughness),Saving,AP)
+    
+    if(chikuseki_damage >= Wound) break
+  
   }
-sim2(A,WS,Attack,Toughness,Saving,AP,Wound){
+  return(i)
+}
+c(howmany.to.kill(2,3,1,1,4,2,4),howmany.to.kill(2,3,1,1,4,2,4))
+
+sim2<-function(A,WS,Attack,Toughness,Saving,AP,Wound){
   times<-c()
-  for (j in 1:50000){
+  for (j in 1:5000){
     times[j]<-howmany.to.kill(A,WS,Attack,Toughness,Saving,AP,Wound)
   }
-  plot(table(times)/500,main =title,xlab="Attacks(times)",ylab="Probability(%)")
-  return(table(APs)/500)
+  plot(table(times)/500,xlab="Attacks(times)",ylab="Probability(%)")
+  return(table(times)/500)
 }
+sim2(2,3,1,1,4,2,4)
