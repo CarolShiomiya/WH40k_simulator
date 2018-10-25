@@ -87,14 +87,13 @@ howmany.to.kill<-function(A,WS,Attack,Toughness,Saving,AP,Wound){
   }
   return(i)
 }
-c(howmany.to.kill(2,3,1,1,4,2,4),howmany.to.kill(2,3,1,1,4,2,4))
 
 sim2<-function(A,WS,Attack,Toughness,Saving,AP,Wound){
   times<-c()
-  for (j in 1:5000){
+  for (j in 1:50000){
     times[j]<-howmany.to.kill(A,WS,Attack,Toughness,Saving,AP,Wound)
   }
-  plot(table(times)/500,xlab="Attacks(times)",ylab="Probability(%)")
+  plot(table(times)/500,main="How many times do U need to kill them?",xlab="Attacks(times)",ylab="Probability(%)")
   return(table(times)/500)
 }
 sim2(2,3,1,1,4,2,4)
