@@ -55,12 +55,15 @@ sim(A=12,WS=4,Attack=5,Toughness=4,Saving=4,AP=1)
 
 
 #ダメージ回数を先に決めてから、それに達するまでにかかる回数のシミュレーション
-howmany.to.kill<-function(A,WS,Attack,Toughness,Saving,AP,Wound){
+howmany.to.kill<-function(A,WS,Attack,Toughness,Saving,AP,D,Wound){
   chikuseki_damage<-0
   i <- 0
   repeat {
     i<-i+1
-    chikuseki_damage<-chikuseki_damage+AProll(damageroll(hitroll(A,WS),Attack,Toughness),Saving,AP)
+    if (D=="D3"){D=ceiling(runif(1)*3)}
+    if (D=="D6"){D=ceiling(runif(1)*6)}
+    
+    chikuseki_damage<-chikuseki_damage+D*AProll(damageroll(hitroll(A,WS),Attack,Toughness),Saving,AP)
     
     if(chikuseki_damage >= Wound) break
     
@@ -68,14 +71,27 @@ howmany.to.kill<-function(A,WS,Attack,Toughness,Saving,AP,Wound){
   return(i)
 }
 #50000回のシミュレーション
-sim2<-function(A,WS,Attack,Toughness,Saving,AP,Wound){
-  times<-c()
-  for (j in 1:50000){
-    times[j]<-howmany.to.kill(A,WS,Attack,Toughness,Saving,AP,Wound)
+sim2<-function(A,WS,Attack,Toughness,Saving,AP,D,Wound){
+  if(A=="D6"){
+    times<-c()
+    
+    for (j in 1:50000){
+      A2<-ceiling(runif(1)*6)
+      print(j)
+      times[j]<-howmany.to.kill(A2,WS,Attack,Toughness,Saving,AP,D,Wound)
+    }
+    plot(table(times)/500,main="How many times are required to kill them?",xlab="Attacks(times)",ylab="Probability(%)")
+    return(table(times)/500)  
   }
-  plot(table(times)/500,main="How many times do U need to kill them?",xlab="Attacks(times)",ylab="Probability(%)")
-  return(table(times)/500)
+  else{
+    times<-c()
+    for (j in 1:50000){
+      times[j]<-howmany.to.kill(A,WS,Attack,Toughness,Saving,AP,Wound)
+    }
+    plot(table(times)/500,main="How many times are required to kill them?",xlab="Attacks(times)",ylab="Probability(%)")
+    return(table(times)/500)}
 }
 
-sim2(A=2,WS=3,Attack=1,Toughness=1,Saving=4,AP=2,Wound=4)
+
+sim2(A="D6",WS=4,Attack=8,Toughness=4,Saving=3,AP=2,D="D3",Wound=10)
 
