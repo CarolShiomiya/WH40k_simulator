@@ -34,10 +34,28 @@ AvT<-function(strength,toughness){
 }
 
 #damageroll hitsの数だけhitしたとして、攻撃者のStrengthと被攻撃者のToughnessに応じたダメージロールを行う
-damageroll<-function(hits,Strength,Toughness){
+#Drerollには、0:リロールなし（デフォルト）、1:1のみリロール、"any":失敗を全てリロール
+damageroll<-function(hits,Strength,Toughness,Dreroll=0){
   require<-AvT(Strength,Toughness)
-  damagecheck<-ceiling(runif(hits)*6)>=require
-  return(sum(damagecheck))
+  damagedies<-ceiling(runif(hits)*6)
+  damagecheck<-damagedies>=require
+  #reroll
+  if (Dreroll==0){
+    return(sum(damagecheck))
+  }
+  else if (Dreroll==1){
+    rerolls<-sum(damagedies==1)
+    reroll_damagedies<-ceiling(runif(rerolls)*6)
+    reroll_damagecheck<-reroll_damagedies>=require
+    return(sum(damagecheck)+sum(reroll_damagecheck))
+  }
+  else if (Dreroll=="any"){
+    rerolls<-sum(!damagecheck)
+    reroll_damagedies<-ceiling(runif(rerolls)*6)
+    reroll_damagecheck<-reroll_damagedies>=require
+    return(sum(damagecheck)+sum(reroll_damagecheck))
+  }
+  
 }
 
 #AProll　damegesの数だけdamageロールが通ったとして、防御者のSavingと攻撃者のAPに応じたセービングを行い、通ったダメージ回数を返す
@@ -48,12 +66,12 @@ AProll<-function(damages,saving,AP){
 AProll(damageroll(hitroll(A="D6",3),5,2),2,3)
 
 #total sim　A,WS,Attack,Toughness,Saving,APを入力し、
-#５万回のシミュレーションを行いダメージ回数ごとの確率を表にする
-sim1<-function(A,WS,Str,Toughness,Saving,AP){
+#5万回のシミュレーションを行いダメージ回数ごとの確率を表にする
+sim1<-function(A,WS,Str,Toughness,Saving,AP,Dreroll=0){
   title<-paste("A=",A,", WS=",WS,", Str=",Str,", Tgh=",Toughness,", Saving=",Saving,", AP=",AP)
   APs<-c()
   for (i in 1:50000){
-    APs[i]<-AProll(damageroll(hitroll(A,WS),Str,Toughness),Saving,AP)
+    APs[i]<-AProll(damageroll(hitroll(A,WS),Str,Toughness,Dreroll),Saving,AP)
   }
   plot(table(APs)/500,main =title,xlab="Damage(times)",ylab="Probability(%)")
   return(table(APs)/500)
@@ -64,11 +82,11 @@ sim1<-function(A,WS,Str,Toughness,Saving,AP){
 sim1(A="D6",WS=4,Str=5,Toughness=4,Saving=4,AP=1)
 
 #ダメージ量のバージョン
-sim2<-function(A,WS,Str,Tgh,Saving,AP=0,D=1,Subtitle=""){
+sim2<-function(A,WS,Str,Tgh,Saving,AP=0,D=1,Subtitle="",Dreroll=0){
   title<-paste("A=",A,", WS=",WS,", Str=",Str,", Tgh=",Tgh,", Saving=",Saving,", AP=",AP)
   APs<-c()
   for (i in 1:50000){
-    APs[i]<-AProll(damageroll(hitroll(A,WS),Str,Tgh),Saving,AP)
+    APs[i]<-AProll(damageroll(hitroll(A,WS),Str,Tgh,Dreroll),Saving,AP)
   }
   Damageamount<-c()
   for (i in 1:50000){
@@ -91,7 +109,7 @@ sim2(A=1,WS=4,Str =8 ,Tgh = 8,Saving = 5,AP= 0, D="D6" ,Subtitle = "Entropy VS K
 sim2(A="D6",WS=4,Str =7 ,Tgh = 8,Saving = 3,AP= 1, D=1 ,Subtitle = "Spitter VS Knight")
 
 #ダメージ回数を先に決めてから、それに達するまでにかかる回数のシミュレーション
-howmany.to.kill<-function(A,WS,Attack,Toughness,Saving,AP,D,Wound){
+howmany.to.kill<-function(A,WS,Attack,Toughness,Saving,AP,D,Wound,Dreroll=0){
   chikuseki_damage<-0
   i <- 0
   repeat {
@@ -99,7 +117,7 @@ howmany.to.kill<-function(A,WS,Attack,Toughness,Saving,AP,D,Wound){
     if (D=="D3"){D=ceiling(runif(1)*3)}
     if (D=="D6"){D=ceiling(runif(1)*6)}
     
-    chikuseki_damage<-chikuseki_damage+D*AProll(damageroll(hitroll(A,WS),Attack,Toughness),Saving,AP)
+    chikuseki_damage<-chikuseki_damage+D*AProll(damageroll(hitroll(A,WS),Attack,Toughness,Dreroll),Saving,AP)
     
     if(chikuseki_damage >= Wound) break
     
@@ -109,13 +127,13 @@ howmany.to.kill<-function(A,WS,Attack,Toughness,Saving,AP,D,Wound){
 
 
 #実行
-howmany.to.kill("D6",3,5,4,2,3,2,10)
+howmany.to.kill("D6",3,5,4,2,3,2,10,Dreroll = 0)
 
 #50000回のシミュレーション
-sim3<-function(A,WS,Attack,Toughness,Saving,AP,D,Wound,Subtitle=""){
+sim3<-function(A,WS,Attack,Toughness,Saving,AP,D,Wound,Subtitle="",Dreroll=0){
   times<-c()
   for (j in 1:50000){
-    times[j]<-howmany.to.kill(A,WS,Attack,Toughness,Saving,AP,D,Wound)
+    times[j]<-howmany.to.kill(A,WS,Attack,Toughness,Saving,AP,D,Wound,Dreroll)
   }
   plot(table(times)/500,main=paste("How many times are required to kill them?",Subtitle),xlab="Attacks(times)",ylab="Probability(%)")
   return(table(times)/500)
