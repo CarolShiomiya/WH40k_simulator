@@ -74,7 +74,8 @@ sim1<-function(A,WS,Str,Toughness,Saving,AP,Dreroll=0){
     APs[i]<-AProll(damageroll(hitroll(A,WS),Str,Toughness,Dreroll),Saving,AP)
   }
   plot(table(APs)/500,main =title,xlab="Damage(times)",ylab="Probability(%)")
-  return(table(APs)/500)
+  print(table(APs)/500)
+  return(APs)
 }
 
 
@@ -101,7 +102,8 @@ sim2<-function(A,WS,Str,Tgh,Saving,AP=0,D=1,Subtitle="",Dreroll=0){
     }
   }
   plot(table(Damageamount)/500,main =paste(title,Subtitle),xlab="Damage(amount)",ylab="Probability(%)")
-  return(table(Damageamount)/500)
+  print(table(Damageamount)/500)
+  return(Damageamount)
 }
 
 #実行
@@ -136,7 +138,8 @@ sim3<-function(A,WS,Attack,Toughness,Saving,AP,D,Wound,Subtitle="",Dreroll=0){
     times[j]<-howmany.to.kill(A,WS,Attack,Toughness,Saving,AP,D,Wound,Dreroll)
   }
   plot(table(times)/500,main=paste("How many times are required to kill them?",Subtitle),xlab="Attacks(times)",ylab="Probability(%)")
-  return(table(times)/500)
+  print(table(times)/500)
+  return(times)
 }
 
 #実行
