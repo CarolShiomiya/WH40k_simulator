@@ -129,13 +129,15 @@ howmany.to.kill<-function(A,WS,Attack,Toughness,Saving,AP,D,Wound,Dreroll=0,Spec
       j<-0
       while(j<APs){
         if(Melta){D2<-max(ceiling(runif(2)*6))}else{D2<-ceiling(runif(1)*6)}
+        print(D2)
         chikuseki_damage<-chikuseki_damage+D2
+        print(chikuseki_damage)
         j<-j+1}
       }
-    if(is.integer(D)==TRUE){
+    if(is.numeric(D)==TRUE){
       chikuseki_damage<-chikuseki_damage+D*AProll(damageroll(hitroll(A,WS),Attack,Toughness,Dreroll),Saving,AP,SpecialSave)
     }  
-    print(chikuseki_damage)
+    
     if(chikuseki_damage >= Wound) break
   }
   return(i)
